@@ -4,7 +4,10 @@ import subprocess
 import uuid
 import random
 import re
+import logging
 
+
+logger = logging.getLogger('django')
 # 一组用于防止重复的标识符
 used_identifiers = set()
 
@@ -107,11 +110,7 @@ def compile(key, user_encoder_path, user_loader_path, user_binary_path,
             "rc4", "xor"
         ],check=True)
 
-
     if remote:
-        #original_basename = os.path.basename(user_encode_shellcode_file_path)
-
-
         new_filename = f"{uuid.uuid4().hex[:10]}"
         new_file_path = os.path.join(user_binary_path, new_filename)
         shutil.move(user_encode_shellcode_file, new_file_path)
@@ -158,6 +157,10 @@ def compile(key, user_encoder_path, user_loader_path, user_binary_path,
             "/p:AssemblyName=binaryfile"
         ],check=True)
 
-
-    shutil.copy(binary_file_path, user_binary_path)
+    try:
+        shutil.copy(binary_file_path, user_binary_path)
+        os.remove(binary_file_path)
+    except Exception as e:
+        logger.error(f"{e}")
+        
     return new_filename

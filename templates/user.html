@@ -45,23 +45,24 @@
             </div>
         </div>
     </nav>
-    <form id="userForm" class="row g-3" style="width: 50%; margin-left: 25%; padding-top: 150px;">
+    <form id="userForm" class="row g-3" style="width: 50%; margin-left: 25%; padding-top: 100px;">
         {% csrf_token %}
+        <h3 style="text-align: center;">用户信息</h3>
         <div class="mb-3">
             <label for="username" class="form-label">用户名</label>
             <input type="text" class="form-control" id="username" name="username" placeholder="必填；长度为150个字符或以下；只能包含字母、数字、特殊字符“@”、“.”、“-”和“_”。" required>
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">邮箱</label>
-            <input type="email" class="form-control" id="email" name="email">
+            <input type="email" class="form-control" id="email" name="email" placeholder="非必填">
         </div>
         <div class="mb-3">
             <label for="mobile" class="form-label">电话</label>
-            <input type="text" class="form-control" id="mobile" name="mobile">
+            <input type="text" class="form-control" id="mobile" name="mobile" placeholder="非必填">
         </div>
         <div class="mb-3">
             <label for="shellcode_ip_addr" class="form-label">远程shellcode服务器地址</label>
-            <input type="text" class="form-control" id="shellcode_ip_addr" name="shellcode_ip_addr">
+            <input type="text" class="form-control" id="shellcode_ip_addr" name="shellcode_ip_addr" placeholder="形如：http://127.0.0.1/">
         </div>
         <div class="mb-3">
             <label for="formGroupExampleInput" class="form-label">新密码</label>
@@ -73,13 +74,15 @@
         </div>
         <div class="row g-3">
             <div class="col">
-                <input type="text" class="form-control" id="first_name" name="first_name" placeholder="名" aria-label="First name">
+                <label for="formGroupExampleInput" class="form-label">名</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" placeholder="非必填" aria-label="First name">
             </div>
             <div class="col">
-                <input type="text" class="form-control" id="last_name" name="last_name" placeholder="姓" aria-label="Last name">
+                <label for="formGroupExampleInput" class="form-label">姓</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" placeholder="非必填" aria-label="Last name">
             </div>
         </div>
-        <div class="col-12">
+        <div class="col-12 text-center">
             <button type="button" id="submitButton" class="btn btn-primary">确认</button>
         </div>
     </form>

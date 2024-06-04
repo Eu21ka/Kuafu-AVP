@@ -4,7 +4,8 @@ import shutil
 import subprocess
 import uuid
 import random
-
+import logging
+logger = logging.getLogger('django')
 def create_unique_identifier(tag, existing_identifiers):
     """创建唯一标识符并确保其不在existing_identifiers列表中"""
     while True:
@@ -134,5 +135,9 @@ def compile(key,user_encoder_path, user_loader_path, user_binary_path,user_shell
 
     subprocess.run(["cargo", "build", "--manifest-path", rs_compile_file_path, "--release"], check=True)
     
-    shutil.copy(binary_file_path, user_binary_path)
+    try:
+        shutil.copy(binary_file_path, user_binary_path)
+        os.remove(binary_file_path)
+    except Exception as e:
+        logger.error(f"{e}")
     return new_filename

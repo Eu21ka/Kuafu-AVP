@@ -5,7 +5,8 @@ import subprocess
 import uuid
 import random
 import re
-
+import logging
+logger = logging.getLogger('django')
 # 一组用于防止重复的标识符
 used_identifiers = set()
 
@@ -101,20 +102,10 @@ def compile(key,user_encoder_path, user_loader_path, user_binary_path,user_shell
     binary_file_path = os.path.join(user_loader_path, "Release", "binaryfile.exe")
     
 
-    try:
+
     #执行自写的shellcode加密工具，并将加密后的shellcode另存为encode_shellcode.bin
-        result = subprocess.run([shecode_encoder_exe_path, "-i", user_shellcode_file, "-o", user_encode_shellcode_file, "-k", "\""+key+"\"", "-m", "rc4", "xor"], check=True)
-        print("命令输出:")
-        print(result.stdout)
-    except subprocess.CalledProcessError as e:
-            # 如果命令执行失败，会抛出CalledProcessError异常
-        print("命令执行出错:")
-        print(e)
-        print(f"错误输出: {e.stderr}")  # 打印标准错误输出
-    except Exception as e:
-        # 捕获其他可能的异常
-        print("捕获到未知错误:")
-        print(e)
+    subprocess.run([shecode_encoder_exe_path, "-i", user_shellcode_file, "-o", user_encode_shellcode_file, "-k", "\""+key+"\"", "-m", "rc4", "xor"], check=True)
+
 
     if remote:
         new_filename = f"{uuid.uuid4().hex[:10]}"
@@ -150,19 +141,12 @@ def compile(key,user_encoder_path, user_loader_path, user_binary_path,user_shell
 
     insert_obfuscation_code(cpp_path, cpp_path)
 
-    try:
-        result = subprocess.run(["MSBuild.exe", cpp_compile_file_path, "/p:Configuration=Release,Platform=x86", "/p:AssemblyName=binaryfile"], check=True)
-        print("命令输出:")
-        print(result.stdout)
-    except subprocess.CalledProcessError as e:
-            # 如果命令执行失败，会抛出CalledProcessError异常
-        print("命令执行出错:")
-        print(e)
-        print(f"错误输出: {e.stderr}")  # 打印标准错误输出
-    except Exception as e:
-        # 捕获其他可能的异常
-        print("捕获到未知错误:")
-        print(e)
+    subprocess.run(["MSBuild.exe", cpp_compile_file_path, "/p:Configuration=Release,Platform=x86", "/p:AssemblyName=binaryfile"], check=True)
+
     
-    shutil.copy(binary_file_path, user_binary_path)
+    try:
+        shutil.copy(binary_file_path, user_binary_path)
+        os.remove(binary_file_path)
+    except Exception as e:
+        logger.error(f"{e}")
     return new_filename

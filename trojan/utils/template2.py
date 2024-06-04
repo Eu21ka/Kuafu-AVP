@@ -5,6 +5,8 @@ import subprocess
 import uuid
 import random
 import re
+import logging
+logger = logging.getLogger('django')
 
 # 一组用于防止重复的标识符
 used_identifiers = set()
@@ -177,5 +179,9 @@ def compile(key,user_encoder_path, user_loader_path, user_binary_path,user_shell
     subprocess.run(["MSBuild.exe", cpp_compile_file_path, "/p:Configuration=Release,Platform=x64", "/p:AssemblyName=binaryfile"], check=True)
 
     
-    shutil.copy(binary_file_path, user_binary_path)
+    try:
+        shutil.copy(binary_file_path, user_binary_path)
+        os.remove(binary_file_path)
+    except Exception as e:
+        logger.error(f"{e}")
     return new_filename
