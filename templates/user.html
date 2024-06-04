@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/home.css" rel="stylesheet">
+    <script type="text/javascript" src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+    <title>Kuafu AVP</title>
+</head>
+<body>
+    <nav class="navbar navbar-dark fixed-top" style="background-color: #d8d8d8;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="https://115.28.135.55/about-us"><img class="index_logo__LO6Yn" src="{% static 'img/logo.gif' %}"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" style="background-color: #212529;">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">用户：<a href="{% url 'user' %}" style="color: inherit; text-decoration: none;">{{ user.username }}</a></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'home' %}">文件上传</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            个人中心
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{% url 'shellcode' %}">Shellcode</a></li>
+                            <li><a class="dropdown-item" href="{% url 'trojan_list' %}">Trojan</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'help' %}">帮助</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">退出</a>
+                    </li>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <form id="userForm" class="row g-3" style="width: 50%; margin-left: 25%; padding-top: 150px;">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="username" class="form-label">用户名</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="必填；长度为150个字符或以下；只能包含字母、数字、特殊字符“@”、“.”、“-”和“_”。" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">邮箱</label>
+            <input type="email" class="form-control" id="email" name="email">
+        </div>
+        <div class="mb-3">
+            <label for="mobile" class="form-label">电话</label>
+            <input type="text" class="form-control" id="mobile" name="mobile">
+        </div>
+        <div class="mb-3">
+            <label for="shellcode_ip_addr" class="form-label">远程shellcode服务器地址</label>
+            <input type="text" class="form-control" id="shellcode_ip_addr" name="shellcode_ip_addr">
+        </div>
+        <div class="mb-3">
+            <label for="formGroupExampleInput" class="form-label">新密码</label>
+            <input type="password" class="form-control" name="password" placeholder="非必填">
+        </div>
+        <div class="mb-3">
+            <label for="formGroupExampleInput" class="form-label">新密码（确认）</label>
+            <input type="password" class="form-control" name="password_again" placeholder="为了校验，请输入与上面相同的密码">
+        </div>
+        <div class="row g-3">
+            <div class="col">
+                <input type="text" class="form-control" id="first_name" name="first_name" placeholder="名" aria-label="First name">
+            </div>
+            <div class="col">
+                <input type="text" class="form-control" id="last_name" name="last_name" placeholder="姓" aria-label="Last name">
+            </div>
+        </div>
+        <div class="col-12">
+            <button type="button" id="submitButton" class="btn btn-primary">确认</button>
+        </div>
+    </form>
+    <!-- 警告框容器 -->
+    <div id="alert-container" class="alert-container"></div>
+</body>
+</html>
+<script type="text/javascript">
+    $(document).ready(function() {
+    $.ajax({
+        url: "{% url 'user' %}",
+        type: 'GET',
+        success: function(data) {
+            $('#username').val(data.form.username);
+            $('#email').val(data.form.email);
+            $('#mobile').val(data.form.mobile);
+            $('#shellcode_ip_addr').val(data.form.shellcode_ip_addr);
+            $('#first_name').val(data.form.first_name);
+            $('#last_name').val(data.form.last_name);
+        },
+        error: function(error) {
+            console.error("Error loading user data: ", error);
+        }
+    });
+    
+    $("#submitButton").click(function() {
+        var formData = $("#userForm").serialize();
+        $.ajax({
+            url: "{% url 'user' %}",
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                $('.alert').alert('close');
+                if (response.success){
+                        var alertHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                                    '<div>'+ response.message +'</div>' +
+                                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                    '</div>';
+                    }else{
+                        var alertHTML = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                                    '<div>'+ response.message +'</div>' +
+                                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                    '</div>';
+                    }
+                $('#alert-container').html(alertHTML);
+            },
+            error: function(xhr) {
+                alert("An error occured: " + xhr.status + " " + xhr.statusText);
+            }
+        });
+    });
+});
+</script>

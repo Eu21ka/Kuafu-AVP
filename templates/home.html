@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/home.css" rel="stylesheet">
+    <script type="text/javascript" src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+    <title>Kuafu AVP</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark fixed-top" style="background-color: #d8d8d8;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="https://115.28.135.55/about-us"><img class="index_logo__LO6Yn" src="{% static 'img/logo.gif' %}"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar"
+                style="background-color: #212529;">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar"
+                aria-labelledby="offcanvasDarkNavbarLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">用户：<a href="{% url 'user' %}"
+                            style="color: inherit; text-decoration: none;">{{ user.username }}</a></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'home' %}">文件上传</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                个人中心
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="{% url 'shellcode' %}">Shellcode</a></li>
+                                <li><a class="dropdown-item" href="{% url 'trojan_list' %}">Trojan</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'help' %}">帮助</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">退出</a>
+                        </li>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="filebox">
+        <figure class="text-center">
+            <blockquote class="blockquote">
+                <p class="h3" style="
+                margin-top: -100px;
+            ">Kuafu 自动化免杀平台</p>
+            </blockquote>
+            <figcaption class="blockquote-footer">
+                Powered by 逐日实验室
+            </figcaption>
+        </figure>
+        <div class="tab-content" id="myTabContent">
+            <div style="text-align: center;">
+                <br>
+                <small class="text-muted">文件大小不得超过5MB，不得重复上传相同的文件</small>
+                <br>
+                <small class="text-muted">仅支持上传32位或64位.bin，.c或是.exe格式的文件</small>
+            </div>
+            <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab"
+                tabindex="0">
+
+                <div>
+                    <form action="" method="post" enctype="multipart/form-data" id="upload">
+                        {% csrf_token %}
+                        <div class="container">
+                            <div class="panel panel-success">
+                                <div class="panel-body">
+                                    <div class="form-inline" style="padding-top: 50px;">
+                                        <div class="form-group">
+                                            <input id="fileupload" type="file" name="fileupload" accept=".c,.bin,.exe"
+                                                multiple="" style="display:none;" />
+                                        </div>
+                                    </div>
+                                    <div class="upload-drop-zone" id="drop-zone"
+                                        style="padding-top: 55px; height: 300px;">
+                                        <img id="excelImport" type="button" class="file_svg"
+                                            src="{% static 'img/upload.svg' %}" />
+                                        <div>点击或拖拽上传文件</div>
+                                    </div>
+                                    <div class="js-upload-finished"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- 警告框容器 -->
+                    <div id="alert-container" class="alert-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script type="text/javascript">
+    var uploadUrl = "{% url 'upload' %}"; // 声明全局变量
+</script>
+<script type="text/javascript" src="{% static 'js/home.js' %}"></script>
