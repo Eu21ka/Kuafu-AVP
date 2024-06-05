@@ -162,5 +162,4 @@ def compile(key, user_encoder_path, user_loader_path, user_binary_path,
         os.remove(binary_file_path)
     except Exception as e:
         logger.error(f"{e}")
-        
     return new_filename

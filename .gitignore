@@ -7764,3 +7764,6 @@ media/workspace/5/loader/x64/Release/binaryfile.exe
 media/workspace/5/loader/x64/Release/syscall.exe
 media/workspace/5/shellcode/encode_shellcode.bin
 media/workspace/5/shellcode/shellcode.bin
+media/binaryfile/56f9fb481878d23.zip
+media/uploads/shellcode/8f1acfb1abfe770_payload.c
+media/workspace/1/loader/syscall/x64/Release/syscall.tlog/xilink-lld-link.read.3.tlog
